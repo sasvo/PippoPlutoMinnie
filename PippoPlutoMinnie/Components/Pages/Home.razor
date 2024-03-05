@@ -1,7 +1,6 @@
 ﻿@page "/"
-
-@using GoogleMaps
-@inject GoogleMaps GoogleMaps
+@inject NavigationManager _navigationManager
+@using System.Threading;
 <PageTitle>Home</PageTitle>
 <head>
     <meta charset="UTF-8">
@@ -9,31 +8,90 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <title>Drone</title>
 </head>
-<body>
-    <div style="width: 50%; height: 40px; background-color: red; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="carica">50%</h3></div>
-    <div style="width: 22%; height: 40px; background-color: green; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="temperatura">50%</h3></div>
-    <div style="width: 22%; height: 40px; background-color: blue; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="orario">16:22:00</h3></div>
+<body> 
+    <div style="width: 50%; height: 40px; background-color: red; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="carica">50%</h3></div>   <!--Ca-->
+    <div style="width: 22%; height: 40px; background-color: green; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="temperatura">50%</h3></div>    <!--Temperatura-->
+    <div style="width: 22%; height: 40px; background-color: blue; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="orario">@time</h3></div> <!--Orario-->
     <br>
-    <div style="width: 50%; height: 340px; background-color: purple; margin: 10px; display: inline-block; box-sizing: border-box;"></div>
-    <div style="width: 46%; height: 340px; background-color: orange; margin: 10px; display: inline-block; box-sizing: border-box;"></div>
+    <div style="width: 50%; height: 340px; background-color: purple; margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Telecamera-->
+    <div style="width: 46%; height: 340px; background-color: orange; margin: 10px; display: inline-block; box-sizing: border-box;"></div>   <!--Maps-->
     <br>
-    <div style="width: 50%; height: 140px; background-color: rgb(87, 66, 0); margin: 10px; display: inline-block; box-sizing: border-box;"></div>
-    <div style="width: 22%; height: 140px; background-color: rgb(255, 0, 225); margin: 10px; display: inline-block; box-sizing: border-box;"></div>
-    <div style="width: 22%; height: 140px; background-color: rgb(195, 255, 0); margin: 10px; display: inline-block; box-sizing: border-box;"></div>
+    <div style="width: 50%; height: 140px; background-color: rgb(87, 66, 0); margin: 10px; display: inline-block; box-sizing: border-box;"></div>   <!--Log-->
+    <div style="width: 22%; height: 140px; background-color: rgb(255, 0, 225); margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Giroscopio-->
+    <div style="width: 22%; height: 140px; background-color: rgb(195, 255, 0); margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Info motori-->
 
 </body>
 
 @code
 {
-    private async Task GetMapPosition()
+    
+    private static HttpClient mapUri = new()
     {
-        try
+            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
+
+    };
+    private static HttpClient temperatureUri = new()
+    {
+            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
+
+    };
+    private static HttpClient batteryUri = new()
+    {
+            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
+
+    };
+    private static HttpClient camUri = new()
         {
-            var position = await GoogleMaps.GetCurrentLocationAsync();
-        }
-        catch(Exception ex)
-        {
-            
-        }
+            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
+
+        };
+    private static HttpClient gyroUri = new()
+    {
+            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
+
+    };
+    private static HttpClient enginesUri = new()
+    {
+        BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
+
+    };
+
+    static async Task GetAsync(HttpClient httpClient)
+    {
+        using HttpResponseMessage response = await httpClient.GetAsync("todos/3");
+
+        response.EnsureSuccessStatusCode()
+            .WriteRequestToConsole();
+
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"{jsonResponse}\n");
+
+        // Expected output:
+        //   GET https://jsonplaceholder.typicode.com/todos/3 HTTP/1.1
+        //   {
+        //     "userId": 1,
+        //     "id": 3,
+        //     "title": "fugiat veniam minus",
+        //     "completed": false
+        //   }
     }
+
+    static string time = DateTime.Now.ToShortTimeString();
+    
+    
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var timer = new Timer(new TimerCallback(_ =>
+            {
+                _navigationManager.NavigateTo("http://localhost:5136/", forceLoad: true);
+            }), null, 2000, 2000);
+
+        }
+
+    }
+
+
+    
 }

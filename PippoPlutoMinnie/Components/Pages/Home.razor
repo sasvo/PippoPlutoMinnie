@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject NavigationManager _navigationManager
+@inject HttpClient httpClient
 @using System.Threading;
 <PageTitle>Home</PageTitle>
 <head>
@@ -10,7 +11,7 @@
 </head>
 <body> 
     <div style="width: 50%; height: 40px; background-color: red; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="carica">50%</h3></div>   <!--Ca-->
-    <div style="width: 22%; height: 40px; background-color: green; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="temperatura">50%</h3></div>    <!--Temperatura-->
+    <div style="width: 22%; height: 40px; background-color: green; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="temperatura">@print</h3></div>    <!--Temperatura-->
     <div style="width: 22%; height: 40px; background-color: blue; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="orario">@time</h3></div> <!--Orario-->
     <br>
     <div style="width: 50%; height: 340px; background-color: purple; margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Telecamera-->
@@ -24,10 +25,10 @@
 
 @code
 {
-    
+
     private static HttpClient mapUri = new()
     {
-            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
+            BaseAddress = new Uri("https://jsonplaceholder.typicode.com/"),
 
     };
     private static HttpClient temperatureUri = new()
@@ -56,15 +57,13 @@
 
     };
 
-    static async Task GetAsync(HttpClient httpClient)
+    static string print="";
+    static async Task<string> GetAsync(HttpClient httpClient)
     {
-        using HttpResponseMessage response = await httpClient.GetAsync("todos/3");
 
-        response.EnsureSuccessStatusCode()
-            .WriteRequestToConsole();
-
+        HttpResponseMessage response = await httpClient.GetAsync("todos/3");
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"{jsonResponse}\n");
+        return jsonResponse;
 
         // Expected output:
         //   GET https://jsonplaceholder.typicode.com/todos/3 HTTP/1.1
@@ -77,21 +76,12 @@
     }
 
     static string time = DateTime.Now.ToShortTimeString();
-    
-    
-    protected override void OnAfterRender(bool firstRender)
+
+
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            var timer = new Timer(new TimerCallback(_ =>
-            {
-                _navigationManager.NavigateTo("http://localhost:5136/", forceLoad: true);
-            }), null, 2000, 2000);
-
-        }
-
+        
+        var a = GetAsync(mapUri);
+        print = await a;
     }
-
-
-    
 }

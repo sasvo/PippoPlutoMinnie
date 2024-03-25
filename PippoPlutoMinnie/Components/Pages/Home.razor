@@ -27,7 +27,7 @@
 {
 
 
-
+    
     static string print="";
     static async Task<string> GetAsyncString(HttpClient httpClient, string url)
     {
@@ -50,6 +50,7 @@
 
         HttpResponseMessage response = await httpClient.GetAsync(url);
         var jsonResponse = await response.Content.ReadAsByteArrayAsync();
+        
         return jsonResponse;
 
         // Expected output:

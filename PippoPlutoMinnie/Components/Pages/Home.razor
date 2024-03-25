@@ -15,13 +15,9 @@
 <div style="width: 22%; height: 140px; background-color: rgb(255, 0, 225); margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Giroscopio-->
 <div style="width: 22%; height: 140px; background-color: rgb(195, 255, 0); margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Info motori-->
 
-</body>
-
 @code
 {
-
-
-    
+    static string time { get; set; } = DateTime.Now.ToShortTimeString();
     static string print="";
     static async Task<string> GetAsyncString(HttpClient httpClient, string url)
     {
@@ -40,9 +36,11 @@
         //   }
     }
 
+    static async Task<byte[]> GetAsyncBytes(HttpClient httpClient, string url)
+    {
+
         HttpResponseMessage response = await httpClient.GetAsync(url);
         var jsonResponse = await response.Content.ReadAsByteArrayAsync();
-        
         return jsonResponse;
 
         // Expected output:
@@ -54,7 +52,22 @@
         //     "completed": false
         //   }
     }
-    static void SaveImage(byte[] imageData, string path)
+
+    // Expected output:
+    //   GET https://jsonplaceholder.typicode.com/todos/3 HTTP/1.1
+    //   {
+    //     "userId": 1,
+    //     "id": 3,
+    //     "title": "fugiat veniam minus",
+    //     "completed": false
+    //   }
+
+    protected override void OnInitialized()
+    {
+        UpdateDateTime();
+    }
+
+    private void UpdateDateTime()
     {
         time = DateTime.Now.ToString("HH:mm:ss");
         StateHasChanged(); // Aggiorna l'interfaccia utente

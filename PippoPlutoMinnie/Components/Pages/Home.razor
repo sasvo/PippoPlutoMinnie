@@ -10,12 +10,12 @@
     <title>Drone</title>
 </head>
 <body> 
-    <div style="width: 50%; height: 40px; background-color: red; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="carica">50%</h3></div>   <!--Ca-->
+    <div style="width: 50%; height: 40px; background-color: red; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="carica">50%</h3></div>   <!--Carica-->
     <div style="width: 22%; height: 40px; background-color: green; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="temperatura">@print</h3></div>    <!--Temperatura-->
     <div style="width: 22%; height: 40px; background-color: blue; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="orario">@time</h3></div> <!--Orario-->
     <br>
     <div style="width: 50%; height: 340px; background-color: purple; margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Telecamera-->
-    <div style="width: 46%; height: 340px; background-color: orange; margin: 10px; display: inline-block; box-sizing: border-box;"></div>   <!--Maps-->
+    <div style="width: 46%; height: 340px; background-color: orange; margin: 10px; display: inline-block; box-sizing: border-box;"><img src="http://maps.googleapis.com/maps/api/staticmap?center=48.8584,2.2945&zoom=11&size=200x200&sensor=false"></div>   <!--Maps-->
     <br>
     <div style="width: 50%; height: 140px; background-color: rgb(87, 66, 0); margin: 10px; display: inline-block; box-sizing: border-box;"></div>   <!--Log-->
     <div style="width: 22%; height: 140px; background-color: rgb(255, 0, 225); margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Giroscopio-->
@@ -26,42 +26,13 @@
 @code
 {
 
-    private static HttpClient mapUri = new()
-    {
-            BaseAddress = new Uri("https://jsonplaceholder.typicode.com/"),
 
-    };
-    private static HttpClient temperatureUri = new()
-    {
-            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
-
-    };
-    private static HttpClient batteryUri = new()
-    {
-            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
-
-    };
-    private static HttpClient camUri = new()
-        {
-            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
-
-        };
-    private static HttpClient gyroUri = new()
-    {
-            BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
-
-    };
-    private static HttpClient enginesUri = new()
-    {
-        BaseAddress = new Uri("https://jsonplaceholder.typicode.com"),
-
-    };
 
     static string print="";
-    static async Task<string> GetAsync(HttpClient httpClient)
+    static async Task<string> GetAsyncString(HttpClient httpClient, string url)
     {
 
-        HttpResponseMessage response = await httpClient.GetAsync("todos/3");
+        HttpResponseMessage response = await httpClient.GetAsync(url);
         var jsonResponse = await response.Content.ReadAsStringAsync();
         return jsonResponse;
 
@@ -74,14 +45,47 @@
         //     "completed": false
         //   }
     }
+    static async Task<byte[]> GetAsyncBytes(HttpClient httpClient, string url)
+    {
+
+        HttpResponseMessage response = await httpClient.GetAsync(url);
+        var jsonResponse = await response.Content.ReadAsByteArrayAsync();
+        return jsonResponse;
+
+        // Expected output:
+        //   GET https://jsonplaceholder.typicode.com/todos/3 HTTP/1.1
+        //   {
+        //     "userId": 1,
+        //     "id": 3,
+        //     "title": "fugiat veniam minus",
+        //     "completed": false
+        //   }
+    }
+    static void SaveImage(byte[] imageData, string path)
+    {
+        try
+        {
+            // Create a FileStream to write the image data to the file
+            using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+            {
+                // Write the byte array containing the image data to the file
+                fs.Write(imageData, 0, imageData.Length);
+            }
+
+            Console.WriteLine("Image saved successfully to: " + path);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error saving image: " + ex.Message);
+        }
+    }
 
     static string time = DateTime.Now.ToShortTimeString();
 
 
     protected override async Task OnInitializedAsync()
     {
-        
-        var a = GetAsync(mapUri);
-        print = await a;
+        var a = GetAsyncString(HttpSettings.siteUri, HttpSettings.mapPath);
+        print = (await a);
     }
 }

@@ -20,8 +20,23 @@
         map.setView({
             mapTypeId: Microsoft.Maps.MapTypeId.aerial,
             center: new Microsoft.Maps.Location(48.8584, 2.2945),
-            zoom: 15
+            zoom: 19
+
         });
+        map.setOptions({
+            enableHighDpi: true
+        })
+        var center = map.getCenter();
+        
+        //Create custom Pushpin
+        var pin = new Microsoft.Maps.Pushpin(center, {
+            title: 'Drone',
+            subTitle: 'PippoPlutoMinnie',
+            text: '1'
+        });
+
+        //Add the pushpin to the map
+        map.entities.push(pin);
     }  
         // Call the GetMap function when the page loads
     Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: GetMap });
@@ -39,7 +54,7 @@
 <div style="width: 22%; height: 40px; background-color: blue; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="orario">@time</h3></div> <!--Orario-->
 <br>
 <div style="width: 50%; height: 340px; background-color: purple; margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Telecamera-->
-<div style="width: 46%; height: 340px; background-color: orange; margin: 10px; display: inline-block; box-sizing: border-box;" id="map"></div>   <!--Maps-->
+<div style="width: 46%; height: 340px; background-color: orange; margin: 10px; display: inline-block; box-sizing: border-box;" id="map"> </div>   <!--Maps-->
 <br>
 <div style="width: 50%; height: 140px; background-color: rgb(87, 66, 0); margin: 10px; display: inline-block; box-sizing: border-box;"></div>   <!--Log-->
 <div style="width: 22%; height: 140px; background-color: rgb(255, 0, 225); margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Giroscopio-->

@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Html;
 @using Microsoft.Web.Helpers;
 @using Microsoft.AspNetCore.Mvc.Rendering;
+@inject IJSRuntime jsRuntime
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
@@ -66,10 +67,12 @@
         return jsonResponse;
 
     }
-    private JSRuntime js;
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await js.InvokeVoidAsync("GetMap")
+        if(firstRender)
+        {
+            await jsRuntime.InvokeVoidAsync("GetMap");
+        }
     }
     protected override void OnInitialized()
     {

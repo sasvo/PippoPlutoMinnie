@@ -11,15 +11,22 @@
 
 <script type="text/javascript" src="https://www.bing.com/api/maps/mapcontrol?key=AnLkqKRZ-5MSO4ahpO74W8otSdu7dkQdCcGaWwx0GNGDMgxPrWrHqbmcrCQw9lv2"></script>
 <script type="text/javascript">
-    var map; 
+    var map;
+
     function GetMap() {
         map = new Microsoft.Maps.Map('#map', { 
             credentials: 'AnLkqKRZ-5MSO4ahpO74W8otSdu7dkQdCcGaWwx0GNGDMgxPrWrHqbmcrCQw9lv2'
         }); 
-        
+        map.setView({
+            mapTypeId: Microsoft.Maps.MapTypeId.aerial,
+            center: new Microsoft.Maps.Location(48.8584, 2.2945),
+            zoom: 15
+        });
     }  
         // Call the GetMap function when the page loads
     Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: GetMap });
+    
+    
  </script>
  <script type="text/javascript">
     window.onload = function () {

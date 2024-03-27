@@ -5,7 +5,8 @@
 @using Microsoft.Web.Helpers;
 @using Microsoft.AspNetCore.Mvc.Rendering;
 @using System.Text.Json;
-@inject IJSRuntime jsRuntime
+@layout NoMenuLayout;
+@inject IJSRuntime jsRuntime;
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
@@ -15,9 +16,9 @@
     var map;
 
     function GetMap() {
-        map = new Microsoft.Maps.Map('#map', { 
+        map = new Microsoft.Maps.Map('#map', {
             credentials: 'AnLkqKRZ-5MSO4ahpO74W8otSdu7dkQdCcGaWwx0GNGDMgxPrWrHqbmcrCQw9lv2'
-        }); 
+        });
         map.setView({
             mapTypeId: Microsoft.Maps.MapTypeId.aerial,
             center: new Microsoft.Maps.Location(48.8584, 2.2945),
@@ -28,7 +29,7 @@
             enableHighDpi: true
         })
         var center = map.getCenter();
-        
+
         //Create custom Pushpin
         var pin = new Microsoft.Maps.Pushpin(center, {
             title: 'Drone',
@@ -38,73 +39,83 @@
 
         //Add the pushpin to the map
         map.entities.push(pin);
-    }  
-        // Call the GetMap function when the page loads
+    }
+    // Call the GetMap function when the page loads
     Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: GetMap });
-    
-    
- </script>
- <script type="text/javascript">
+
+
+</script>
+<script type="text/javascript">
     window.onload = function () {
         GetMap();
     };
 </script>
-<style>
-.grid-container {
-  display: grid;
-  grid-template-columns: auto auto auto auto auto auto auto auto;
-  grid-template-rows: 120px 370px 120px;
-  gap: 10px;
-  background-color: #2196F3;
-  padding: 10px;
-}
 
-.grid-container > div {
-  background-color: rgba(255, 255, 255, 0.8);
-  text-align: center;
-  padding: 20px 0;
-  font-size: 30px;
-}
-
-.Sensor {
-  grid-column: 1 / 4;
-}
-.Temperature {
-  grid-column: 4 / 7;
-}
-.Hour {
-  grid-column: 7 / 9;
-}
-.Camera {
-  grid-column: 1 / 5;
-}
-.Map {
-  grid-column: 5 / 9;
-}
-.Speed {
-  grid-column: 1/5;
-}
-.Height {
-  grid-column: 5/7;
-}
-.Pressure {
-  grid-column: 7/9;
-}
-</style>
 <body>
 
-<div class="grid-container">
-  <div class="Sensor"></div>
-  <div class="Temperature"></div>
-  <div class="Hour">@time</div>
-  <div class="Camera"><img src="data:image/png;base64,@jsonInfo.Image" alt="Telecamera" /></div>
-  <div class="Map" id="map"></div>
-  <div class="Speed"></div>
-  <div class="Height"></div>
-  <div class="Pressure"></div>  
-</div>
+    <div class="grid-container">
+        <div class="Sensor"></div>
+        <div class="Temperature"></div>
+        <div class="Hour" id="hour">@time</div>
+        <div class="Camera"><img src="data:image/png;base64,@jsonInfo.Image" alt="Telecamera" /></div>
+        <div class="Map" id="map"></div>
+        <div class="Speed"></div>
+        <div class="Height"></div>
+        <div class="Pressure"></div>
+    </div>
 
 </body>
+<style>
+    .grid-container {
+        color: white;
+        vertical-align: middle;
+        display: grid;
+        grid-template-columns: auto auto auto auto auto auto auto auto;
+        grid-template-rows: 120px 385px 120px;
+        gap: 5px;
+        background-color: #c8a2c8;
+        padding: 5px;
+    }
+
+        .grid-container > div {
+            background-color: black;
+            text-align: center;
+            text padding: 20px 0;
+            font-size: 30px;
+        }
+
+    .Sensor {
+        grid-column: 1 / 4;
+    }
+
+    .Temperature {
+        grid-column: 4 / 7;
+    }
+
+    .Hour {
+        grid-column: 7 / 9;
+    }
+
+    .Camera {
+        grid-column: 1 / 5;
+    }
+
+    .Map {
+        grid-column: 5 / 9;
+    }
+
+    .Speed {
+        grid-column: 1/5;
+    }
+
+    .Height {
+        grid-column: 5/7;
+    }
+
+    .Pressure {
+        grid-column: 7/9;
+    }
+</style>
 
 
 @code
@@ -139,16 +150,18 @@
     // }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
             await jsRuntime.InvokeVoidAsync("GetMap");
+
         }
     }
-    protected override async Task OnInitializedAsync()
-    {
-        // var response = GetAsyncJSON(HttpSettings.siteUri, HttpSettings.clientPath);
-        // jsonInfo = await response;
-    }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     // var response = GetAsyncJSON(HttpSettings.siteUri, HttpSettings.clientPath);
+    //     // jsonInfo = await response;
+    // }
     protected override void OnInitialized()
     {
         UpdateDateTime();
@@ -156,7 +169,6 @@
 
     private void UpdateDateTime()
     {
-        
         time = DateTime.Now.ToString("HH:mm:ss");
         StateHasChanged(); // Aggiorna l'interfaccia utente
         InvokeAsync(async () =>

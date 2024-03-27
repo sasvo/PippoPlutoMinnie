@@ -4,15 +4,9 @@
     {
         public static HttpClient siteUri = new()
         {
-            BaseAddress = new Uri("https://jsonplaceholder.typicode.com/"),
+            BaseAddress = new Uri("http://192.168.149.209:3001/")
 
         };
-        public static string tempPath = "todos/3";
-        public static string enginesPath = "todos/3";
-        public static string cameraPath = "todos/3";
-        public static string batteryPath = "todos/3";
-        public static string mapPath = "todos/3";
-        public static string logPath = "todos/3";
-        public static string gyroPath = "todos/3";
+        public static string clientPath = "client";
     }
 }

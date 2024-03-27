@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Html;
 @using Microsoft.Web.Helpers;
 @using Microsoft.AspNetCore.Mvc.Rendering;
+@using System.Text.Json;
 @inject IJSRuntime jsRuntime
 @rendermode InteractiveServer
 
@@ -48,28 +49,74 @@
         GetMap();
     };
 </script>
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto auto auto;
+  grid-template-rows: 120px 370px 120px;
+  gap: 10px;
+  background-color: #2196F3;
+  padding: 10px;
+}
 
-<div style="width: 50%; height: 40px; background-color: red; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="carica">50%</h3></div>   <!--Carica-->
-<div style="width: 22%; height: 40px; background-color: green; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="temperatura">50°</h3></div>    <!--Temperatura-->
-<div style="width: 22%; height: 40px; background-color: blue; margin: 10px; display: inline-block; box-sizing: border-box;"><h3 id="orario">@time</h3></div> <!--Orario-->
-<br>
-<div style="width: 50%; height: 340px; background-color: purple; margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Telecamera-->
-<div style="width: 46%; height: 340px; background-color: orange; margin: 10px; display: inline-block; box-sizing: border-box;" id="map"> </div>   <!--Maps-->
-<br>
-<div style="width: 50%; height: 140px; background-color: rgb(87, 66, 0); margin: 10px; display: inline-block; box-sizing: border-box;"></div>   <!--Log-->
-<div style="width: 22%; height: 140px; background-color: rgb(255, 0, 225); margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Giroscopio-->
-<div style="width: 22%; height: 140px; background-color: rgb(195, 255, 0); margin: 10px; display: inline-block; box-sizing: border-box;"></div> <!--Info motori-->
+.grid-container > div {
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 20px 0;
+  font-size: 30px;
+}
+
+.Sensor {
+  grid-column: 1 / 4;
+}
+.Temperature {
+  grid-column: 4 / 7;
+}
+.Hour {
+  grid-column: 7 / 9;
+}
+.Camera {
+  grid-column: 1 / 5;
+}
+.Map {
+  grid-column: 5 / 9;
+}
+.Speed {
+  grid-column: 1/5;
+}
+.Height {
+  grid-column: 5/7;
+}
+.Pressure {
+  grid-column: 7/9;
+}
+</style>
+<body>
+
+<div class="grid-container">
+  <div class="Sensor"></div>
+  <div class="Temperature"></div>
+  <div class="Hour">@time</div>
+  <div class="Camera"><img src="data:image/png;base64,@jsonInfo.Image" alt="Telecamera" /></div>
+  <div class="Map" id="map"></div>
+  <div class="Speed"></div>
+  <div class="Height"></div>
+  <div class="Pressure"></div>  
+</div>
+
+</body>
+
 
 @code
 {
     static string time { get; set; } = DateTime.Now.ToShortTimeString();
-    static string print="";
-    static async Task<string> GetAsyncString(HttpClient httpClient, string url)
+    static GestioneJSON jsonInfo = new GestioneJSON();
+    static async Task<GestioneJSON?> GetAsyncJSON(HttpClient httpClient, string url)
     {
-
         HttpResponseMessage response = await httpClient.GetAsync(url);
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        return jsonResponse;
+        GestioneJSON? message = JsonSerializer.Deserialize<GestioneJSON>(jsonResponse);
+        return message;
 
         // Expected output:
         //   GET https://jsonplaceholder.typicode.com/todos/3 HTTP/1.1
@@ -81,14 +128,15 @@
         //   }
     }
 
-    static async Task<byte[]> GetAsyncBytes(HttpClient httpClient, string url)
-    {
+    // static async Task<byte[]> GetAsyncBytes(HttpClient httpClient, string url)
+    // {
 
-        HttpResponseMessage response = await httpClient.GetAsync(url);
-        var jsonResponse = await response.Content.ReadAsByteArrayAsync();
-        return jsonResponse;
+    //     HttpResponseMessage response = await httpClient.GetAsync(url);
+    //     var jsonResponse = await response.Content.ReadAsByteArrayAsync();
 
-    }
+    //     return jsonResponse;
+
+    // }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender)
@@ -96,10 +144,13 @@
             await jsRuntime.InvokeVoidAsync("GetMap");
         }
     }
+    protected override async Task OnInitializedAsync()
+    {
+        // var response = GetAsyncJSON(HttpSettings.siteUri, HttpSettings.clientPath);
+        // jsonInfo = await response;
+    }
     protected override void OnInitialized()
     {
-        
-        
         UpdateDateTime();
     }
 

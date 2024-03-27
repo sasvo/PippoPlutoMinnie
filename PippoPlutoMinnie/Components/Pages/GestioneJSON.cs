@@ -9,6 +9,7 @@
         public double Speed { get; set; }
         public string Image { get; set; }
         
+        
         //public string Charge {  get; private set; }
         //public string GyroInfo {  get; private set; }
         

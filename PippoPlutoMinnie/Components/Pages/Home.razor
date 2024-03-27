@@ -17,31 +17,56 @@
 
     function GetMap() {
         map = new Microsoft.Maps.Map('#map', {
-            credentials: 'AnLkqKRZ-5MSO4ahpO74W8otSdu7dkQdCcGaWwx0GNGDMgxPrWrHqbmcrCQw9lv2'
+            credentials: 'AnLkqKRZ-5MSO4ahpO74W8otSdu7dkQdCcGaWwx0GNGDMgxPrWrHqbmcrCQw9lv2',
+            showLabels: true
         });
         map.setView({
             mapTypeId: Microsoft.Maps.MapTypeId.aerial,
-            center: new Microsoft.Maps.Location(48.8584, 2.2945),
-            zoom: 19
+            center: new Microsoft.Maps.Location(48.8530, 2.3499),     //Da inserire tramite chiocciola
+            zoom: 18
 
         });
         map.setOptions({
             enableHighDpi: true
         })
+        map.setOptions({ disableZooming: true, disablePanning: true, disableMapTypeSelectorMouseOver: true, enableClickableLogo: false, showLocateMeButton: false});
+        
+    }
+    var pin;
+    function PinPush() { 
         var center = map.getCenter();
-
+        
         //Create custom Pushpin
-        var pin = new Microsoft.Maps.Pushpin(center, {
+        pin = new Microsoft.Maps.Pushpin(center, {
             title: 'Drone',
             subTitle: 'PippoPlutoMinnie',
             text: '1'
         });
-
+        
         //Add the pushpin to the map
         map.entities.push(pin);
     }
+    function RemovePin() {
+        map.entities.remove(pin);
+    }
+    function MovePin(location)
+    {
+        pin.setLocation(location);
+    }
+    function CenterMap()
+    {
+
+        MovePin(new Microsoft.Maps.Location(Number(@lat), Number(@longitude)));
+        map.setView({
+            mapTypeId: Microsoft.Maps.MapTypeId.aerial,
+            center: new Microsoft.Maps.Location(Number(@lat), Number(@longitude)),     
+            zoom: 18,
+            labelOverlay: Microsoft.Maps.LabelOverlay.visible
+        });
+    }
+    
     // Call the GetMap function when the page loads
-    Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: GetMap });
+    //Microsoft.Maps.loadModule('Microsoft.Maps.Map', { callback: GetMap });        Non viene eseguito in blazor, ma lo tengo per bellezza :)
 
 
 </script>
@@ -120,6 +145,10 @@
 
 @code
 {
+    static string p ="";
+    static string pinName = "Topolino";
+    static string lat = "48.8584";  //cambio latitudine di prova
+    static string longitude =  "2.2945";    //cambio longitudine di prova
     static string time { get; set; } = DateTime.Now.ToShortTimeString();
     static GestioneJSON jsonInfo = new GestioneJSON();
     static async Task<GestioneJSON?> GetAsyncJSON(HttpClient httpClient, string url)
@@ -129,51 +158,41 @@
         GestioneJSON? message = JsonSerializer.Deserialize<GestioneJSON>(jsonResponse);
         return message;
 
-        // Expected output:
-        //   GET https://jsonplaceholder.typicode.com/todos/3 HTTP/1.1
-        //   {
-        //     "userId": 1,
-        //     "id": 3,
-        //     "title": "fugiat veniam minus",
-        //     "completed": false
-        //   }
     }
 
-    // static async Task<byte[]> GetAsyncBytes(HttpClient httpClient, string url)
-    // {
-
-    //     HttpResponseMessage response = await httpClient.GetAsync(url);
-    //     var jsonResponse = await response.Content.ReadAsByteArrayAsync();
-
-    //     return jsonResponse;
-
-    // }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender)    //prova
         {
             await jsRuntime.InvokeVoidAsync("GetMap");
+            await jsRuntime.InvokeVoidAsync("PinPush");
+            await jsRuntime.InvokeVoidAsync("CenterMap"); //da eseguire con un timer, NO TASK DELAY
 
         }
+
+
     }
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     // var response = GetAsyncJSON(HttpSettings.siteUri, HttpSettings.clientPath);
-    //     // jsonInfo = await response;
-    // }
+    protected override async Task OnInitializedAsync()
+    {
+        // var response = GetAsyncJSON(HttpSettings.siteUri, HttpSettings.clientPath);
+        // jsonInfo = await response;
+    }
     protected override void OnInitialized()
     {
         UpdateDateTime();
     }
 
-    private void UpdateDateTime()
+    private void UpdateDateTime() //da rifare con timer
     {
         time = DateTime.Now.ToString("HH:mm:ss");
+        
         StateHasChanged(); // Aggiorna l'interfaccia utente
         InvokeAsync(async () =>
         {
+            
             await Task.Delay(1000); // Attendi un secondo
+
             UpdateDateTime(); // Richiama la funzione per aggiornare l'ora
         });
     }
